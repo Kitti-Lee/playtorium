@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block ex_css %}
+<style>
+    .card:hover {
+        transform: scale(1.05);
+        transition: all 0.3s ease;
+    }
+    .card-img-top {
+        max-height: 285px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+    <div class="header">
+        <h1>Playtorium Store</h1>
+    </div>
+</div>
+<div class="row">
+    {% for i in product_data %}
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-5">
+        <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="{{ i.image_file }}" alt="{{ i.product_name }}">
+            <div class="card-body">
+                <span class="d-flex justify-content-between">
+                    <h5 class="card-title">{{ i.product_name }}</h5>
+                    <h6 class="text-success">฿{{ i.price|floatformat:2 }}</h6>
+                </span>
+                <p class="card-text">
+                    {% if i.category == 'Clothing' %}
+                    <span class="badge bg-dark text-light">
+                    {% elif i.category == 'Accessory' %}
+                    <span class="badge bg-warning text-light">
+                    {% else %}
+                    <span class="badge bg-dark text-light">
+                    {% endif %}
+                        {{ i.category }}
+                    </span> 
+                    {{ i.product_description }}
+                </p>
+                <h6 class="disabled" style="margin-bottom: 0; font-size: 10px;">
+                    <i class="fa fa-location-dot"></i> Bangkok, Thailand
+                </h6>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-outline-primary">
+                    <i class="fa fa-cart-plus"></i> Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block modal %}
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Shopping Cart</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            ...
+        </div>
+        <div class="modal-footer justify-content-between">
+            <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+            <span><h6>Tatal</h6><h5 class="text-primary">฿ XXXX</h5></span>
+            <button type="button" class="btn btn-primary">Check Out</button>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block ex_js %}
+{% endblock %}
