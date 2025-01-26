@@ -100,8 +100,8 @@
                         {% for i in coupon_coupon %}
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="couponRadio" id="{{ i.coupon_id }}" 
-                            data-discount-type="{{ i.coupon_type }}" 
-                            data-discount-value="{{ i.discount }}">
+                            data-discount-type="{{ i.coupon_type }}" data-discount-value="{{ i.discount }}" 
+                            onchange="disabledCoupon()">
                             <label class="form-check-label" for="{{ i.coupon_id }}">
                                 {{ i.coupon_name }}
                             </label>
@@ -112,9 +112,9 @@
                         {% for i in ontop_coupon %}
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="ontopRadio" id="{{ i.coupon_id }}" 
-                            data-discount-type="{{ i.coupon_type }}" 
-                            data-discount-value="{{ i.discount }}"
-                            {% if i.coupon_type == 'points' %} data-points="{{ i.discount }}" {% endif %}>
+                            data-discount-type="{{ i.coupon_type }}" data-discount-value="{{ i.discount }}"
+                            {% if i.coupon_type == 'points' %} data-points="{{ i.discount }}" {% endif %}
+                            onchange="disabledCoupon()">
                             <label class="form-check-label" for="{{ i.coupon_id }}">
                                 {{ i.coupon_name }} {% if i.coupon_id == 'CP0004' %}<span class="text-success">(68 Points)</span>{% endif %}
                             </label>
@@ -125,8 +125,8 @@
                         {% for i in seasonal_coupon %}
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="seasonalRadio" id="{{ i.coupon_id }}" 
-                            data-discount-type="{{ i.coupon_type }}" 
-                            data-discount-value="{{ i.discount }}">
+                            data-discount-type="{{ i.coupon_type }}" data-discount-value="{{ i.discount }}"
+                            onchange="disabledCoupon()">
                             <label class="form-check-label" for="{{ i.coupon_id }}">
                                 {{ i.coupon_name }}
                             </label>
@@ -135,7 +135,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="reset" class="btn btn-secondary">Clear</button>
+                    <button type="reset" class="btn btn-secondary" onclick="resetAndEnableRadios()">Clear</button>
                     <button type="button" class="btn btn-primary" data-bs-target="#cartModal" data-bs-toggle="modal" data-bs-dismiss="modal" onclick="applyCoupon()">
                         Apply Vouchers
                     </button>
@@ -269,13 +269,119 @@
         
         const selectedCoupon = getSelectedCoupon();
         if (selectedCoupon) {
-            if (selectedCoupon.type === 'coupon') {
+            if (selectedCoupon.case === 'selected3') {
+                if (selectedCoupon.discountType1 === 'fixed') {
+                    discount1 = selectedCoupon.discountValue1;
+                    if (selectedCoupon.discountType2 === 'Clothing') {
+                        discount2 = totalClothingAmount * 0.15;
+                        _totalAmount = totalAmount - discount1 - discount2
+                        if (_totalAmount >= 300) {
+                            discount3 = Math.floor(_totalAmount / 300) * 40;
+                        } else {
+                            discount3 = 0;
+                        }
+                    } else if (selectedCoupon.discountType2 === 'points') {
+                        let pointsValue = selectedCoupon.discountValue2;
+                        let maxDiscount = totalAmount * 0.20;
+                        discount2 = Math.min(pointsValue, maxDiscount);
+                        _totalAmount = totalAmount - discount1 - discount2
+                        if (_totalAmount >= 300) {
+                            discount3 = Math.floor(_totalAmount / 300) * 40;
+                        } else {
+                            discount3 = 0;
+                        }
+                    }
+                } else if (selectedCoupon.discountType1 === 'percentage') {
+                    discount1 = totalAmount * (selectedCoupon.discountValue1 / 100);
+                    if (selectedCoupon.discountType2 === 'Clothing') {
+                        discount2 = totalClothingAmount * 0.15;
+                        _totalAmount = totalAmount - discount1 - discount2
+                        if (_totalAmount >= 300) {
+                            discount3 = Math.floor(_totalAmount / 300) * 40;
+                        } else {
+                            discount3 = 0;
+                        }
+                    } else if (selectedCoupon.discountType2 === 'points') {
+                        let pointsValue = selectedCoupon.discountValue2;
+                        let maxDiscount = totalAmount * 0.20;
+                        discount2 = Math.min(pointsValue, maxDiscount);
+                    }
+                    _totalAmount = totalAmount - discount1 - discount2
+                    if (_totalAmount >= 300) {
+                        discount3 = Math.floor(_totalAmount / 300) * 40;
+                    } else {
+                        discount3 = 0;
+                    }
+                }
+                discount = discount1 + discount2 + discount3
+            } else if (selectedCoupon.case === 'selected2coupon+topup') {
+                if (selectedCoupon.discountType1 === 'fixed') {
+                    discount1 = selectedCoupon.discountValue1;
+                    if (selectedCoupon.discountType2 === 'Clothing') {
+                        discount2 = totalClothingAmount * 0.15;
+                    } else if (selectedCoupon.discountType2 === 'points') {
+                        let pointsValue = selectedCoupon.discountValue2;
+                        let maxDiscount = totalAmount * 0.20;
+                        discount2 = Math.min(pointsValue, maxDiscount);
+                    }
+                } else if (selectedCoupon.discountType1 === 'percentage') {
+                    discount1 = totalAmount * (selectedCoupon.discountValue1 / 100);
+                    if (selectedCoupon.discountType2 === 'Clothing') {
+                        discount2 = totalClothingAmount * 0.15;
+                    } else if (selectedCoupon.discountType2 === 'points') {
+                        let pointsValue = selectedCoupon.discountValue2;
+                        let maxDiscount = totalAmount * 0.20;
+                        discount2 = Math.min(pointsValue, maxDiscount);
+                    }
+                }
+                discount = discount1 + discount2
+            } else if (selectedCoupon.case === 'selected2topup+seasonal') {
+                if (selectedCoupon.discountType1 === 'Clothing') {
+                    discount1 = totalClothingAmount * 0.15;
+                    _totalAmount = totalAmount - discount1
+                    if (_totalAmount >= 300) {
+                        discount2 = Math.floor(_totalAmount / 300) * 40;
+                    } else {
+                        discount2 = 0;
+                    }
+                } else if (selectedCoupon.discountType1 === 'points') {
+                    let pointsValue = selectedCoupon.discountValue1;
+                    let maxDiscount = totalAmount * 0.20;
+                    discount1 = Math.min(pointsValue, maxDiscount);
+                    _totalAmount = totalAmount - discount1
+                    if (_totalAmount >= 300) {
+                        discount2 = Math.floor(_totalAmount / 300) * 40;
+                    } else {
+                        discount2 = 0;
+                    }
+                }
+                discount = discount1 + discount2
+            } else if (selectedCoupon.case === 'selected2coupon+seasonal') {
+                if (selectedCoupon.discountType1 === 'fixed') {
+                    discount1 = selectedCoupon.discountValue1;
+                    _totalAmount = totalAmount - discount1
+                    if (_totalAmount >= 300) {
+                        discount2 = Math.floor(_totalAmount / 300) * 40;
+                    } else {
+                        discount2 = 0;
+                    }
+                } else if (selectedCoupon.discountType1 === 'percentage') {
+                    discount1 = totalAmount * (selectedCoupon.discountValue1 / 100);
+                    _totalAmount = totalAmount - discount1
+                    if (_totalAmount >= 300) {
+                        discount2 = Math.floor(_totalAmount / 300) * 40;
+                    } else {
+                        discount2 = 0;
+                    }
+                }
+                discount = discount1 + discount2
+            } else if (selectedCoupon.case === 'selected1coupon') {
                 if (selectedCoupon.discountType === 'fixed') {
                     discount = selectedCoupon.discountValue;
                 } else if (selectedCoupon.discountType === 'percentage') {
                     discount = totalAmount * (selectedCoupon.discountValue / 100);
                 }
-            } else if (selectedCoupon.type === 'topup') {
+            } else if (selectedCoupon.case === 'selected1topup') {
                 if (selectedCoupon.discountType === 'Clothing') {
                     discount = totalClothingAmount * 0.15;
                 } else if (selectedCoupon.discountType === 'points') {
@@ -283,7 +389,7 @@
                     let maxDiscount = totalAmount * 0.20;
                     discount = Math.min(pointsValue, maxDiscount);
                 }
-            } else if (selectedCoupon.type === 'seasonal') {
+            } else if (selectedCoupon.case === 'selected1seasonal') {
                 if (totalAmount >= 300) {
                     discount = Math.floor(totalAmount / 300) * 40;
                 }
@@ -297,20 +403,66 @@
         const ontopRadio = document.querySelector('input[name="ontopRadio"]:checked');
         const seasonalRadio = document.querySelector('input[name="seasonalRadio"]:checked');
         
-        if (couponRadio) {
+        if (couponRadio && ontopRadio && seasonalRadio) {
             return {
+                case: 'selected3',
+                type1: 'coupon',
+                discountType1: couponRadio.getAttribute('data-discount-type'),
+                discountValue1: parseFloat(couponRadio.getAttribute('data-discount-value')),
+                type2: 'topup',
+                discountType2: ontopRadio.getAttribute('data-discount-type'),
+                discountValue2: parseFloat(ontopRadio.getAttribute('data-discount-value')),
+                type3: 'seasonal',
+                discountType3: seasonalRadio.getAttribute('data-discount-type'),
+                discountValue3: parseFloat(seasonalRadio.getAttribute('data-discount-value')),
+            };
+        } else if (couponRadio && ontopRadio) {
+            return {
+                case: 'selected2coupon+topup',
+                type1: 'coupon',
+                discountType1: couponRadio.getAttribute('data-discount-type'),
+                discountValue1: parseFloat(couponRadio.getAttribute('data-discount-value')),
+                type2: 'topup',
+                discountType2: ontopRadio.getAttribute('data-discount-type'),
+                discountValue2: parseFloat(ontopRadio.getAttribute('data-discount-value')),
+            };
+        } else if (ontopRadio && seasonalRadio) {
+            return {
+                case: 'selected2topup+seasonal',
+                type1: 'topup',
+                discountType1: ontopRadio.getAttribute('data-discount-type'),
+                discountValue1: parseFloat(ontopRadio.getAttribute('data-discount-value')),
+                type2: 'seasonal',
+                discountType2: seasonalRadio.getAttribute('data-discount-type'),
+                discountValue2: parseFloat(seasonalRadio.getAttribute('data-discount-value')),
+            };
+        } else if (couponRadio && seasonalRadio) {
+            return {
+                case: 'selected2coupon+seasonal',
+                type1: 'coupon',
+                discountType1: couponRadio.getAttribute('data-discount-type'),
+                discountValue1: parseFloat(couponRadio.getAttribute('data-discount-value')),
+                type2: 'seasonal',
+                discountType2: seasonalRadio.getAttribute('data-discount-type'),
+                discountValue2: parseFloat(seasonalRadio.getAttribute('data-discount-value')),
+            };
+        } else if (couponRadio) {
+            return {
+                case: 'selected1coupon',
                 type: 'coupon',
                 discountType: couponRadio.getAttribute('data-discount-type'),
                 discountValue: parseFloat(couponRadio.getAttribute('data-discount-value')),
             };
         } else if (ontopRadio) {
             return {
+                case: 'selected1topup',
                 type: 'topup',
                 discountType: ontopRadio.getAttribute('data-discount-type'),
                 discountValue: parseFloat(ontopRadio.getAttribute('data-discount-value')),
             };
         } else if (seasonalRadio) {
             return {
+                case: 'selected1seasonal',
                 type: 'seasonal',
                 discountType: seasonalRadio.getAttribute('data-discount-type'),
                 discountValue: parseFloat(seasonalRadio.getAttribute('data-discount-value')),
@@ -331,6 +483,35 @@
             showConfirmButton: false,
             timer: 1500,
         });
+    }
+
+    function disabledCoupon() {
+        const couponRadio = document.querySelector('input[name="couponRadio"]:checked');
+        const ontopRadio = document.querySelector('input[name="ontopRadio"]:checked');
+        const seasonalRadio = document.querySelector('input[name="seasonalRadio"]:checked');
+        if (couponRadio && !ontopRadio && !seasonalRadio) {
+            console.log("Nothing will be disabled.");
+        } 
+        else if (!couponRadio && ontopRadio && !seasonalRadio) {
+            console.log("couponRadio will be disabled.");
+            const allCouponRadios = document.querySelectorAll('input[name="couponRadio"]');
+            allCouponRadios.forEach(radio => radio.disabled = true);
+        } 
+        else if (!couponRadio && !ontopRadio && seasonalRadio) {
+            console.log("couponRadio and ontopRadio will be disabled.");
+            const allCouponRadios = document.querySelectorAll('input[name="couponRadio"]');
+            const allOntopRadios = document.querySelectorAll('input[name="ontopRadio"]');
+            allCouponRadios.forEach(radio => radio.disabled = true);
+            allOntopRadios.forEach(radio => radio.disabled = true);
+        }
+    }
+
+    function resetAndEnableRadios() {
+        const allRadios = document.querySelectorAll('input[type="radio"]');
+        allRadios.forEach(radio => {
+            radio.disabled = false;
+        });
+        console.log("All radio buttons are enabled.");
     }
 </script>
 {% endblock %}
