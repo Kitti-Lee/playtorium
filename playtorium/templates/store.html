@@ -8,21 +8,24 @@
         transition: all 0.3s ease;
     }
     .card-img-top {
-        max-height: 285px;
+        max-height: 350px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="row mt-3">
-    <div class="header">
+    <div class="header d-flex justify-content-between">
         <h1>Playtorium Store</h1>
+        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#cartModal" style="height: 3rem;">
+            <i class="fa-solid fa-cart-shopping" style="font-size: 16px;"></i> Shopping Cart
+        </button>
     </div>
 </div>
-<div class="row">
+<div class="row container">
     {% for i in product_data %}
-    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mt-5">
-        <div class="card" style="width: 18rem;">
+    <div class="col-sm-12 col-md-4 col-lg-4 mt-5">
+        <div class="card" style="width: 100%s; height:100%;">
             <img class="card-img-top" src="{{ i.image_file }}" alt="{{ i.product_name }}">
             <div class="card-body">
                 <span class="d-flex justify-content-between">
@@ -31,9 +34,9 @@
                 </span>
                 <p class="card-text">
                     {% if i.category == 'Clothing' %}
-                    <span class="badge bg-dark text-light">
+                    <span class="badge bg-success text-light">
                     {% elif i.category == 'Accessory' %}
-                    <span class="badge bg-warning text-light">
+                    <span class="badge text-light" style="background-color: #ff7400;">
                     {% else %}
                     <span class="badge bg-dark text-light">
                     {% endif %}
@@ -57,25 +60,277 @@
 {% endblock %}
 
 {% block modal %}
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Shopping Cart</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header">
+                <h5 class="modal-title" id="cartModalLabel">Shopping Cart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="alert alert-secondary" role="alert">Your cart is empty!</div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <span>
+                    <h6>Total</h6>
+                    <h5 class="text-primary">฿0.00</h5>
+                </span>
+                <span>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.reload();">Clear Cart</button>
+                    <button class="btn btn-warning text-light" data-bs-target="#couponModalToggle" data-bs-toggle="modal" data-bs-dismiss="modal"><i class="fa-solid fa-ticket"></i> Vouchers</button>
+                    <button type="button" class="btn btn-primary">Check Out</button>
+                </span>
+            </div>
         </div>
-        <div class="modal-body">
-            ...
-        </div>
-        <div class="modal-footer justify-content-between">
-            <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-            <span><h6>Tatal</h6><h5 class="text-primary">฿ XXXX</h5></span>
-            <button type="button" class="btn btn-primary">Check Out</button>
-        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="couponModalToggle" data-bs-backdrop="static" aria-hidden="true" aria-labelledby="couponModalToggleLabel" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="couponModalToggleLabel">Select Voucher</h5>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <div class="category">
+                        <h6>Coupon</h6>
+                        {% for i in coupon_coupon %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="couponRadio" id="{{ i.coupon_id }}" 
+                            data-discount-type="{{ i.coupon_type }}" 
+                            data-discount-value="{{ i.discount }}">
+                            <label class="form-check-label" for="{{ i.coupon_id }}">
+                                {{ i.coupon_name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+
+                        <h6 class="mt-2">On Top Coupon</h6>
+                        {% for i in ontop_coupon %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="ontopRadio" id="{{ i.coupon_id }}" 
+                            data-discount-type="{{ i.coupon_type }}" 
+                            data-discount-value="{{ i.discount }}"
+                            {% if i.coupon_type == 'points' %} data-points="{{ i.discount }}" {% endif %}>
+                            <label class="form-check-label" for="{{ i.coupon_id }}">
+                                {{ i.coupon_name }} {% if i.coupon_id == 'CP0004' %}<span class="text-success">(68 Points)</span>{% endif %}
+                            </label>
+                        </div>
+                        {% endfor %}
+
+                        <h6>Seasonal Coupons</h6>
+                        {% for i in seasonal_coupon %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="seasonalRadio" id="{{ i.coupon_id }}" 
+                            data-discount-type="{{ i.coupon_type }}" 
+                            data-discount-value="{{ i.discount }}">
+                            <label class="form-check-label" for="{{ i.coupon_id }}">
+                                {{ i.coupon_name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-secondary">Clear</button>
+                    <button type="button" class="btn btn-primary" data-bs-target="#cartModal" data-bs-toggle="modal" data-bs-dismiss="modal" onclick="applyCoupon()">
+                        Apply Vouchers
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block ex_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const addToCartButtons = document.querySelectorAll('.btn-outline-primary');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const productCard = event.target.closest('.card');
+                const product = {
+                    name: productCard.querySelector('.card-title').textContent,
+                    price: parseFloat(productCard.querySelector('.text-success').textContent.replace('฿', '')),
+                    image: productCard.querySelector('.card-img-top').src,
+                    category: productCard.querySelector('.badge').textContent.trim()
+                };
+                addToCart(product);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Item Added!',
+                    text: `${product.name} has been added to the cart!`,
+                    showConfirmButton: false,
+                    timer: 1000
+                });
+            }, { once: true });
+        });
+    });
+
+    const cart = [];
+    function addToCart(product) {
+        console.log(product);
+        const existingProduct = cart.find(item => item.name === product.name);
+        if (existingProduct) {
+            existingProduct.quantity += 1;
+        } else {
+            product.price = parseFloat(product.price);
+            cart.push({ ...product, quantity: 1 });
+        }
+        updateCartModal();
+    }
+    
+    function getProductQuantity(productName) {
+        const product = cart.find(item => item.name === productName);
+        return product ? product.quantity : 0;
+    }
+
+    function updateCartModal() {
+        const modalBody = document.querySelector('#cartModal .modal-body .container');
+        if (!modalBody) {
+            console.error('Cart container element not found!');
+            return;
+        }
+    
+        modalBody.innerHTML = '';
+        if (cart.length === 0) {
+            modalBody.innerHTML = '<div class="alert alert-secondary" role="alert">Your cart is empty!</div>';
+        } else {
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price * item.quantity;
+    
+                const cartItemDiv = document.createElement('div');
+                cartItemDiv.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-3');
+    
+                const itemImage = document.createElement('img');
+                itemImage.src = item.image;
+                itemImage.alt = item.name;
+                itemImage.style.width = '50px';
+                itemImage.style.height = '50px';
+                cartItemDiv.appendChild(itemImage);
+    
+                const itemDetails = document.createElement('div');
+                const itemName = document.createElement('h6');
+                itemName.textContent = item.name;
+                const itemPrice = document.createElement('small');
+                itemPrice.textContent = `฿${(item.price * item.quantity).toFixed(2)}`;
+                itemDetails.appendChild(itemName);
+                itemDetails.appendChild(itemPrice);
+                cartItemDiv.appendChild(itemDetails);
+    
+                modalBody.appendChild(cartItemDiv);
+            });
+    
+            const totalElement = document.querySelector('#cartModal .modal-footer span h5');
+            totalElement.textContent = `฿${total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+        }
+    }
+
+    function clearCart() {
+        cart.length = 0;
+        updateCartModal();
+    
+        const allCoupons = document.querySelectorAll('.form-check-input');
+        allCoupons.forEach(coupon => {
+            coupon.disabled = false;
+        });
+    
+        const totalElement = document.querySelector('#cartModal .modal-footer span h5');
+        totalElement.textContent = `฿0.00`;
+        
+        Swal.fire({
+            icon: 'warning',
+            title: 'Cart Cleared!',
+            text: 'Your cart has been cleared.',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    }
+
+    function applyCoupon() {
+        let totalAmount = 0;
+        let discount = 0;
+        let totalClothingAmount = 0;
+        
+        cart.forEach(item => {
+            totalAmount += item.price * item.quantity;
+            if (item.category === 'Clothing') {
+                totalClothingAmount += item.price * item.quantity;
+            }
+        });
+        
+        const selectedCoupon = getSelectedCoupon();
+        if (selectedCoupon) {
+            if (selectedCoupon.type === 'coupon') {
+                if (selectedCoupon.discountType === 'fixed') {
+                    discount = selectedCoupon.discountValue;
+                } else if (selectedCoupon.discountType === 'percentage') {
+                    discount = totalAmount * (selectedCoupon.discountValue / 100);
+                }
+            } else if (selectedCoupon.type === 'topup') {
+                if (selectedCoupon.discountType === 'Clothing') {
+                    discount = totalClothingAmount * 0.15;
+                } else if (selectedCoupon.discountType === 'points') {
+                    let pointsValue = selectedCoupon.discountValue;
+                    let maxDiscount = totalAmount * 0.20;
+                    discount = Math.min(pointsValue, maxDiscount);
+                }
+            } else if (selectedCoupon.type === 'seasonal') {
+                if (totalAmount >= 300) {
+                    discount = Math.floor(totalAmount / 300) * 40;
+                }
+            }
+        }
+        updateCartModalWithDiscount(totalAmount, discount);
+    }
+    
+    function getSelectedCoupon() {
+        const couponRadio = document.querySelector('input[name="couponRadio"]:checked');
+        const ontopRadio = document.querySelector('input[name="ontopRadio"]:checked');
+        const seasonalRadio = document.querySelector('input[name="seasonalRadio"]:checked');
+        
+        if (couponRadio) {
+            return {
+                type: 'coupon',
+                discountType: couponRadio.getAttribute('data-discount-type'),
+                discountValue: parseFloat(couponRadio.getAttribute('data-discount-value')),
+            };
+        } else if (ontopRadio) {
+            return {
+                type: 'topup',
+                discountType: ontopRadio.getAttribute('data-discount-type'),
+                discountValue: parseFloat(ontopRadio.getAttribute('data-discount-value')),
+            };
+        } else if (seasonalRadio) {
+            return {
+                type: 'seasonal',
+                discountType: seasonalRadio.getAttribute('data-discount-type'),
+                discountValue: parseFloat(seasonalRadio.getAttribute('data-discount-value')),
+            };
+        }
+        return null;
+    }   
+    
+    function updateCartModalWithDiscount(totalAmount, discount) {
+        const discountedTotal = totalAmount - discount;
+        const totalElement = document.querySelector('#cartModal .modal-footer span h5');
+        totalElement.textContent = `฿${discountedTotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+    
+        Swal.fire({
+            icon: 'success',
+            title: 'Discount Applied!',
+            text: `A discount of ฿${discount.toFixed(2)} has been applied.`,
+            showConfirmButton: false,
+            timer: 1500,
+        });
+    }
+</script>
 {% endblock %}

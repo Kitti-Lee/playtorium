@@ -15,5 +15,5 @@ class CouponMaster(models.Model):
     coupon_description = models.CharField(max_length=255, null=True, blank=True)
     coupon_type = models.CharField(max_length=255, null=True, blank=True)
     coupon_category = models.CharField(max_length=255, null=True, blank=True)
-    discount = models.FloatField(null=True, blank=True)
+    discount = models.CharField(max_length=255, null=True, blank=True)
     image_file = models.CharField(max_length=255, null=True, blank=True)
